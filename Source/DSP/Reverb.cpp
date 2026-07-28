@@ -3,6 +3,7 @@
 void Reverb::prepare(double sr, int samplesPerBlock)
 {
     sampleRate = sr;
+    if (sampleRate < 8000) sampleRate = 44100.0;
 
     combFilters.clear();
     allpassFilters.clear();
@@ -10,7 +11,7 @@ void Reverb::prepare(double sr, int samplesPerBlock)
     // Initialize comb filters with tuned delays
     for (int tuning : COMB_TUNINGS)
     {
-        int delaySize = (int)((tuning * sampleRate) / 44100.0);
+        int delaySize = std::max(1, (int)((tuning * sampleRate) / 44100.0));
         combFilters.emplace_back();
         combFilters.back().prepare(delaySize);
     }
@@ -18,7 +19,7 @@ void Reverb::prepare(double sr, int samplesPerBlock)
     // Initialize allpass filters
     for (int tuning : ALLPASS_TUNINGS)
     {
-        int delaySize = (int)((tuning * sampleRate) / 44100.0);
+        int delaySize = std::max(1, (int)((tuning * sampleRate) / 44100.0));
         allpassFilters.emplace_back();
         allpassFilters.back().prepare(delaySize);
     }
@@ -29,6 +30,9 @@ void Reverb::processReverb(juce::AudioBuffer<float>& buffer, float roomSize, flo
     auto numChannels = buffer.getNumChannels();
     auto numSamples = buffer.getNumSamples();
 
+    if (combFilters.empty() || allpassFilters.empty())
+        return;  // Not prepared
+
     // Clamp parameters
     roomSize = std::max(0.0f, std::min(1.0f, roomSize));
     width = std::max(0.0f, std::min(1.0f, width));
@@ -36,7 +40,7 @@ void Reverb::processReverb(juce::AudioBuffer<float>& buffer, float roomSize, flo
     dry = std::max(0.0f, std::min(1.0f, dry));
 
     // Feedback amount based on room size
-    float feedback = roomSize * 0.84f + 0.15f;
+    float feedback = std::max(0.1f, std::min(0.99f, roomSize * 0.84f + 0.15f));
 
     for (int ch = 0; ch < numChannels; ++ch)
     {
@@ -66,6 +70,12 @@ void Reverb::processReverb(juce::AudioBuffer<float>& buffer, float roomSize, flo
             float wetSignal = allpassOutput;
             float output = (input * dry) + (wetSignal * wet);
 
+            // Denormal protection
+            if (std::isnan(output) || std::isinf(output))
+                output = 0.0f;
+
+            // Prevent clipping
+            output = std::max(-1.0f, std::min(1.0f, output));
             channelData[sample] = output;
         }
     }

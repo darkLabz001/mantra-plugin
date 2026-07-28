@@ -7,11 +7,12 @@
 class CombFilter
 {
 public:
-    CombFilter() = default;
+    CombFilter() : bufferIndex(0) {}
 
     void prepare(int size)
     {
-        buffer.resize(size, 0.0f);
+        if (size <= 0) size = 1116;
+        buffer.assign(size, 0.0f);
         bufferIndex = 0;
     }
 
@@ -37,11 +38,12 @@ private:
 class AllpassFilter
 {
 public:
-    AllpassFilter() = default;
+    AllpassFilter() : bufferIndex(0) {}
 
     void prepare(int size)
     {
-        buffer.resize(size, 0.0f);
+        if (size <= 0) size = 225;
+        buffer.assign(size, 0.0f);
         bufferIndex = 0;
     }
 

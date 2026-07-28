@@ -80,11 +80,6 @@ void MantraAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::
     buffer.applyGain(outputGain);
 }
 
-juce::AudioProcessorEditor* MantraAudioProcessor::createEditor()
-{
-    return new MantraAudioProcessorEditor(*this);
-}
-
 void MantraAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
     auto state = apvts.state.toXmlString();
