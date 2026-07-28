@@ -5,6 +5,7 @@
 #include "DSP/Saturation.h"
 #include "DSP/EQ.h"
 #include "DSP/Compressor.h"
+#include "DSP/Reverb.h"
 
 class MantraAudioProcessor : public juce::AudioProcessor
 {
@@ -46,6 +47,7 @@ private:
     Saturation saturation;
     EQ eq;
     Compressor compressor;
+    Reverb reverb;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MantraAudioProcessor)
 };

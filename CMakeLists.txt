@@ -37,6 +37,7 @@ target_sources(MantraPlugin
         Source/DSP/Saturation.cpp
         Source/DSP/EQ.cpp
         Source/DSP/Compressor.cpp
+        Source/DSP/Reverb.cpp
 )
 
 target_include_directories(MantraPlugin PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Source)

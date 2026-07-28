@@ -17,6 +17,7 @@ void MantraAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
     saturation.prepare(sampleRate, samplesPerBlock);
     eq.prepare(sampleRate, samplesPerBlock);
     compressor.prepare(sampleRate, samplesPerBlock);
+    reverb.prepare(sampleRate, samplesPerBlock);
 }
 
 void MantraAudioProcessor::releaseResources()
@@ -54,6 +55,10 @@ void MantraAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::
     float presence = apvts.getRawParameterValue("presence")->load();
     float compThreshold = apvts.getRawParameterValue("compThreshold")->load();
     float compRatio = apvts.getRawParameterValue("compRatio")->load();
+    float reverbRoomSize = apvts.getRawParameterValue("reverbRoomSize")->load();
+    float reverbWidth = apvts.getRawParameterValue("reverbWidth")->load();
+    float reverbWet = apvts.getRawParameterValue("reverbWet")->load();
+    float reverbDry = apvts.getRawParameterValue("reverbDry")->load();
     float outputGain = apvts.getRawParameterValue("outputGain")->load();
 
     // Apply input gain
@@ -67,6 +72,9 @@ void MantraAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::
 
     // Apply EQ
     eq.processEQ(buffer, bassEQ, midEQ, trebleEQ, presence);
+
+    // Apply reverb
+    reverb.processReverb(buffer, reverbRoomSize, reverbWidth, reverbWet, reverbDry);
 
     // Apply output gain
     buffer.applyGain(outputGain);
@@ -158,6 +166,27 @@ juce::AudioProcessorValueTreeState::ParameterLayout MantraAudioProcessor::create
         juce::NormalisableRange<float>(1.0f, 16.0f, 0.1f), 4.0f,
         [](float value) { return juce::String(value, 1) + ":1"; },
         [](const juce::String& text) { return text.getFloatValue(); }
+    ));
+
+    // Reverb
+    params.push_back(std::make_unique<Parameter>(
+        "reverbRoomSize", "Reverb Room Size", "",
+        juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.5f, nullptr, nullptr
+    ));
+
+    params.push_back(std::make_unique<Parameter>(
+        "reverbWidth", "Reverb Width", "",
+        juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 1.0f, nullptr, nullptr
+    ));
+
+    params.push_back(std::make_unique<Parameter>(
+        "reverbWet", "Reverb Wet", "",
+        juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.3f, nullptr, nullptr
+    ));
+
+    params.push_back(std::make_unique<Parameter>(
+        "reverbDry", "Reverb Dry", "",
+        juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.7f, nullptr, nullptr
     ));
 
     // Output stage

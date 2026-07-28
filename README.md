@@ -13,12 +13,13 @@ A full-featured guitar amp simulator plugin built with **JUCE** and **C++17**.
   - Treble (8 kHz high shelf)
   - Presence (3 kHz shelving)
 - **Dynamic Compressor** - Adjustable threshold and compression ratio
+- **Reverb** - Room simulation with size, width, and wet/dry controls
 - **Output Gain** - Final level adjustment
 
 ## Audio Processing Chain
 
 ```
-Input → Input Gain → Saturation → Compressor → EQ → Output Gain → Output
+Input → Input Gain → Saturation → Compressor → EQ → Reverb → Output Gain → Output
 ```
 
 ## Building
@@ -56,15 +57,16 @@ cp -r build/MantraPlugin_artefacts/Release/VST3/Mantra.vst3 ~/.vst3/
 
 ### Recommended Settings
 
-**Light Distortion:**
+**Light Distortion (Clean with Reverb):**
 - Input Gain: 1.2x
 - Drive: 0.3
 - Tone: 0.5
 - Bass: +2 dB
 - Treble: +3 dB
+- Reverb Room: 0.4, Wet: 0.25
 - Output Gain: 0.9x
 
-**Medium Distortion:**
+**Medium Distortion (Rock):**
 - Input Gain: 1.5x
 - Drive: 0.6
 - Tone: 0.5
@@ -73,16 +75,26 @@ cp -r build/MantraPlugin_artefacts/Release/VST3/Mantra.vst3 ~/.vst3/
 - Treble: +5 dB
 - Presence: +3 dB
 - Comp Threshold: -20 dB
+- Reverb Room: 0.5, Wet: 0.3
 - Output Gain: 0.8x
 
-**Heavy Distortion:**
+**Heavy Distortion (Metal):**
 - Input Gain: 2.0x
 - Drive: 0.9
 - Tone: 0.7
 - Bass: +8 dB
 - Treble: +8 dB
 - Comp Ratio: 6:1
+- Reverb Room: 0.3, Wet: 0.2
 - Output Gain: 0.5x
+
+**Ambient/Spacey:**
+- Input Gain: 0.8x
+- Drive: 0.2
+- Bass: +2 dB
+- Treble: +4 dB
+- Reverb Room: 0.9, Width: 1.0, Wet: 0.6, Dry: 0.4
+- Output Gain: 0.7x
 
 ## DSP Algorithms
 
@@ -101,6 +113,13 @@ cp -r build/MantraPlugin_artefacts/Release/VST3/Mantra.vst3 ~/.vst3/
 - Adjustable compression ratio
 - Smooth gain reduction
 
+### Reverb
+- Schroeder reverberator using parallel comb and series allpass filters
+- Room Size: Simulates different room acoustics
+- Width: Controls stereo image (0 = mono, 1 = full stereo)
+- Wet/Dry Mix: Blend between reverb and dry signal
+- Natural room reflections without harsh aliasing
+
 ## Parameters
 
 | Parameter | Range | Default |
@@ -114,6 +133,10 @@ cp -r build/MantraPlugin_artefacts/Release/VST3/Mantra.vst3 ~/.vst3/
 | Presence | -12 - +12 dB | 0 dB |
 | Comp Threshold | -60 - 0 dB | -24 dB |
 | Comp Ratio | 1:1 - 16:1 | 4:1 |
+| Reverb Room Size | 0 - 1 | 0.5 |
+| Reverb Width | 0 - 1 | 1.0 |
+| Reverb Wet | 0 - 1 | 0.3 |
+| Reverb Dry | 0 - 1 | 0.7 |
 | Output Gain | 0 - 4x | 1x (0 dB) |
 
 ## Technical Details
