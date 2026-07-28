@@ -5,9 +5,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(JUCE_BUILD_EXTRAS OFF)
 set(JUCE_BUILD_EXAMPLES OFF)
 
-# Disable GUI extras to avoid GTK dependency
-set(JUCE_MODULES_TO_SKIP juce_gui_extra)
-
 include(FetchContent)
 FetchContent_Declare(
     JUCE
@@ -16,9 +13,15 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(JUCE)
 
+if(APPLE)
+    set(PLUGIN_FORMAT "AU")
+else()
+    set(PLUGIN_FORMAT "VST3")
+endif()
+
 juce_add_plugin(MantraPlugin
     PRODUCT_NAME "Mantra"
-    COMPANY_NAME "Neural DSP Clone"
+    COMPANY_NAME "Neural DSP"
     IS_SYNTH FALSE
     NEEDS_MIDI_INPUT FALSE
     NEEDS_MIDI_OUTPUT FALSE
@@ -27,8 +30,7 @@ juce_add_plugin(MantraPlugin
     COPY_PLUGIN_AFTER_BUILD TRUE
     PLUGIN_MANUFACTURER_CODE Mntr
     PLUGIN_CODE Mntr
-    FORMATS VST3
-    VST3_CATEGORIES "Fx" "Distortion"
+    FORMATS ${PLUGIN_FORMAT}
 )
 
 target_sources(MantraPlugin
@@ -41,7 +43,6 @@ target_sources(MantraPlugin
 )
 
 target_include_directories(MantraPlugin PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Source)
-
 target_compile_features(MantraPlugin PRIVATE cxx_std_17)
 
 target_link_libraries(MantraPlugin
